@@ -25,38 +25,56 @@ if uploaded_file is not None:
     st.write(filtered_df)
 
     st.subheader("Plot Data")
-    x_column = st.selectbox("Select x-axis column", columns)
-    y_column = st.selectbox("Select y-axis column", columns)
-
+    
+    # Filter columns based on data type
+    numeric_columns = df.select_dtypes(include=["float", "int"]).columns.tolist()
+    all_columns = df.columns.tolist()
+    
+    x_column = st.selectbox("Select x-axis column", all_columns)
+    y_column = st.selectbox("Select y-axis column", numeric_columns)
+    
     plot_type = st.selectbox("Select plot type", ["Line Plot", "Scatter Plot", "Bar Chart", "Histogram"])
 
+    # Additional plot customizations
+    st.subheader("Plot Customizations")
+    grid = st.checkbox("Show Grid")
+    color = st.color_picker("Pick a plot color", "#00f900")
+    
     if st.button("Generate Plot"):
         plt.figure(figsize=(10, 6))
 
-        if plot_type == "Line Plot":
-            plt.plot(filtered_df[x_column], filtered_df[y_column], marker='o')
-            plt.xlabel(x_column)
-            plt.ylabel(y_column)
-            plt.title(f'{y_column} vs {x_column} - Line Plot')
+        try:
+            if plot_type == "Line Plot":
+                plt.plot(filtered_df[x_column], filtered_df[y_column], marker='o', color=color)
+                plt.xlabel(x_column)
+                plt.ylabel(y_column)
+                plt.title(f'{y_column} vs {x_column} - Line Plot')
 
-        elif plot_type == "Scatter Plot":
-            plt.scatter(filtered_df[x_column], filtered_df[y_column], marker='o')
-            plt.xlabel(x_column)
-            plt.ylabel(y_column)
-            plt.title(f'{y_column} vs {x_column} - Scatter Plot')
+            elif plot_type == "Scatter Plot":
+                plt.scatter(filtered_df[x_column], filtered_df[y_column], marker='o', color=color)
+                plt.xlabel(x_column)
+                plt.ylabel(y_column)
+                plt.title(f'{y_column} vs {x_column} - Scatter Plot')
 
-        elif plot_type == "Bar Chart":
-            plt.bar(filtered_df[x_column], filtered_df[y_column])
-            plt.xlabel(x_column)
-            plt.ylabel(y_column)
-            plt.title(f'{y_column} vs {x_column} - Bar Chart')
+            elif plot_type == "Bar Chart":
+                plt.bar(filtered_df[x_column], filtered_df[y_column], color=color)
+                plt.xlabel(x_column)
+                plt.ylabel(y_column)
+                plt.title(f'{y_column} vs {x_column} - Bar Chart')
 
-        elif plot_type == "Histogram":
-            plt.hist(filtered_df[y_column], bins=30)
-            plt.xlabel(y_column)
-            plt.ylabel("Frequency")
-            plt.title(f'Histogram of {y_column}')
+            elif plot_type == "Histogram":
+                plt.hist(filtered_df[y_column], bins=30, color=color)
+                plt.xlabel(y_column)
+                plt.ylabel("Frequency")
+                plt.title(f'Histogram of {y_column}')
+            
+            if grid:
+                plt.grid(True)
 
-        st.pyplot(plt.gcf())
+            st.pyplot(plt.gcf())
+        
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
+
 else:
     st.write("Waiting on file upload...")
